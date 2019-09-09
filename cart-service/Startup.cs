@@ -9,11 +9,8 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
-using Npgsql.EntityFrameworkCore.PostgreSQL;
 
-namespace ReviewService
+namespace CartService
 {
     public class Startup
     {
@@ -36,10 +33,6 @@ namespace ReviewService
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            var optionsBuilder = new DbContextOptionsBuilder<ReviewContext>();
-            optionsBuilder.UseNpgsql("Host=localhost;Database=review;Username=swarm;Password=password");
-            services.AddSingleton<ReviewContext>(_ => new ReviewContext(optionsBuilder.Options));
-            services.AddScoped<IReviewSvc, ReviewSvc>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -60,7 +53,12 @@ namespace ReviewService
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
-            app.UseMvc();
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller=Home}/{action=Index}/{id?}");
+            });
         }
     }
 }

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
-    <RootNamespace>review_service</RootNamespace>
+    <RootNamespace>ReviewService</RootNamespace>
   </PropertyGroup>
 
 
