@@ -1,6 +1,8 @@
 # coolstore-microservice-dotnetstack
 This is a .Net version of the coolstore-microservice project
+
 Original here: https://github.com/jbossdemocentral/coolstore-microservice
+
 "Forked" - Aug 14, 2019, and will presumably drift from there unless resynced.
 
 Status:
