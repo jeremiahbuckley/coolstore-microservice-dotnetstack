@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using CartService.Models;
+using PsmProduct = PricingServiceModel.Product; 
 
 namespace CartService.Services {
     public class BasicCacheContainer {

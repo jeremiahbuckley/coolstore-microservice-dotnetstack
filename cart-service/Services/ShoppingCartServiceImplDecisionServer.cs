@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 
 using CartService.Models;
+using PsmPromoEvent = PricingServiceModel.PromoEvent; 
+using PsmShoppingCart = PricingServiceModel.ShoppingCart;
+using PsmShoppingCartItem = PricingServiceModel.ShoppingCartItem;
 
 namespace CartService.Services {
 
@@ -63,7 +66,7 @@ namespace CartService.Services {
 
                 // if (executeResponse.getType() == ResponseType.SUCCESS) {
                 //     ExecutionResults results = executeResponse.getResult();
-                //     ShoppingCart resultSc = (ShoppingCart) results.getValue("shoppingcart");
+                //     PsmShoppingCart resultSc = (PsMShoppingCart) results.getValue("shoppingcart");
                 //     MapShoppingCartPricingResults(resultSc, sc);
                 // } else {
                     // TODO: Some proper, micro-service type error handling here.
@@ -88,7 +91,7 @@ namespace CartService.Services {
 
             // Insert the promo first. Promotions are retrieved from the PromoService.
             foreach(var promo in ps.Promotions) {
-                PromoEvent promoEvent = new PromoEvent(promo.ItemId, promo.PercentOff);
+                PsmPromoEvent promoEvent = new PsmPromoEvent(promo.ItemId, promo.PercentOff);
                 // Note that we insert the fact into the "Promo Stream".
                 // Command<type> insertPromoEventCommand = commandsFactory.newInsert(promoEvent, "outPromo", false, "Promo Stream");
                 // commands.add(insertPromoEventCommand);
@@ -97,7 +100,7 @@ namespace CartService.Services {
             /*
             * Build the ShoppingCart fact from the given ShoppingCart.
             */
-            ShoppingCart factSc = BuildShoppingCartFact(sc);
+            PsmShoppingCart factSc = BuildShoppingCartFact(sc);
 
             // commands.add(commandsFactory.newInsert(factSc, "shoppingcart", true, "DEFAULT"));
 
@@ -105,8 +108,8 @@ namespace CartService.Services {
             IList<ShoppingCartItem> scItems = sc.ShoppingCartItemList;
             foreach(ShoppingCartItem nextSci in scItems) {
                 // Build the ShoppingCartItem fact from the given ShoppingCartItem.
-                ShoppingCartItem factSci = BuildShoppingCartItem(nextSci);
-                // factSci.SetShoppingCart(factSc);
+                PsmShoppingCartItem factSci = BuildShoppingCartItem(nextSci);
+                factSci.ShoppingCart = factSc;
                 // commands.add(commandsFactory.newInsert(factSci));
             }
 
@@ -125,13 +128,13 @@ namespace CartService.Services {
         }
 
         /**
-        * Builds a {@link com.redhat.coolstore.ShoppingCart} fact from the given {@link ShoppingCart}.
+        * Builds a {@link PricingServiceModel.ShoppingCart} fact from the given {@link ShoppingCart}.
         *
         * @param sc the {@link ShoppingCart} from which to build the fact.
-        * @return the {@link com.redhat.coolstore.ShoppingCart} fact
+        * @return the {@link PricingServiceModel.ShoppingCart} fact
         */
-        private ShoppingCart BuildShoppingCartFact(ShoppingCart sc) {
-            ShoppingCart factSc = new ShoppingCart();
+        private PsmShoppingCart BuildShoppingCartFact(ShoppingCart sc) {
+            PsmShoppingCart factSc = new PsmShoppingCart();
             factSc.CartItemPromoSavings = sc.CartItemPromoSavings;
             factSc.CartItemTotal = sc.CartItemTotal;
             factSc.CartTotal = sc.CartTotal;
@@ -141,27 +144,27 @@ namespace CartService.Services {
         }
 
         /**
-        * Builds a {@link com.redhat.coolstore.ShoppingCartItem} fact from the given {@link ShoppingCartItem}.
+        * Builds a {@link PricingServiceModel.ShoppingCartItem} fact from the given {@link ShoppingCartItem}.
         *
         * @param sci the {@link ShoppingCartItem} from which to build the fact.
-        * @return the {@link com.redhat.coolstore.ShoppingCartItem} fact.
+        * @return the {@link PricingServiceModel.ShoppingCartItem} fact.
         */
-        private ShoppingCartItem BuildShoppingCartItem(ShoppingCartItem sci) {
-            ShoppingCartItem factSci = new ShoppingCartItem();
-            // factSci.ItemId = sci.Product.ItemId;
-            // factSci.Name = sci.Product.Name;
+        private PsmShoppingCartItem BuildShoppingCartItem(ShoppingCartItem sci) {
+            PsmShoppingCartItem factSci = new PsmShoppingCartItem();
+            factSci.ItemId = sci.Product.ItemId;
+            factSci.Name = sci.Product.Name;
             factSci.Price = sci.Product.Price;
             factSci.Quantity = sci.Quantity;
             return factSci;
         }
 
         /**
-        * Maps the {@link com.redhat.coolstore.ShoppingCart} pricing results to the given {@link ShoppingCart}.
+        * Maps the {@link PricingServiceModel.ShoppingCart} pricing results to the given {@link ShoppingCart}.
         *
-        * @param resultSc the {@link com.redhat.coolstore.ShoppingCart} containing the pricing defined by the rules engine.
+        * @param resultSc the {@link PricingServiceModel.ShoppingCart} containing the pricing defined by the rules engine.
         * @param sc       the {@link ShoppingCart} onto which we need to map the results.
         */
-        private void MapShoppingCartPricingResults(ShoppingCart resultSc, ShoppingCart sc) {
+        private void MapShoppingCartPricingResults(PsmShoppingCart resultSc, ShoppingCart sc) {
             sc.CartItemPromoSavings = resultSc.CartItemPromoSavings;
             sc.CartItemTotal = resultSc.CartItemTotal;
             sc.ShippingPromoSavings = resultSc.ShippingPromoSavings;
