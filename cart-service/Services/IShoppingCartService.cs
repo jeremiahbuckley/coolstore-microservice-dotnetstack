@@ -2,19 +2,19 @@ using CartService.Models;
 
 namespace CartService.Services {
     public interface IShoppingCartService {
-        ShoppingCart getShoppingCart(string cartId);
+        ShoppingCart GetShoppingCart(string cartId);
 
-        Product getProduct(string itemId);
+        Product GetProduct(string itemId);
 
-        ShoppingCart deleteItem(string cartId, string itemId, int quantity);
+        ShoppingCart DeleteItem(string cartId, string itemId, int quantity);
 
-        ShoppingCart checkout(string cartId);
+        ShoppingCart Checkout(string cartId);
 
-        ShoppingCart addItem(string cartId, string itemId, int quantity);
+        ShoppingCart AddItem(string cartId, string itemId, int quantity);
 
-        ShoppingCart set(string cartId, string tmpId);
+        ShoppingCart Set(string cartId, string tmpId);
 
-        void priceShoppingCart(ShoppingCart sc);
+        void PriceShoppingCart(ShoppingCart sc);
     }
 
 }

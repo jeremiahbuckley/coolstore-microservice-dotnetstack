@@ -29,17 +29,17 @@ namespace CartService.Models
             this.CartId = cartId;
         }
 
-        public void resetShoppingCartItemList() {
+        public void ResetShoppingCartItemList() {
             shoppingCartItemList = new List<ShoppingCartItem>();
         }
 
-        public void addShoppingCartItem(ShoppingCartItem sci) {
+        public void AddShoppingCartItem(ShoppingCartItem sci) {
             if (sci != null) {
                 shoppingCartItemList.Add(sci);
             }
         }
         
-        public bool removeShoppingCartItem(ShoppingCartItem sci) {
+        public bool RemoveShoppingCartItem(ShoppingCartItem sci) {
             return (sci != null)
                 ? shoppingCartItemList.Remove(sci)
                 : false;

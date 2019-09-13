@@ -3,7 +3,7 @@ using CartService.Models;
 namespace CartService.Services {
     public class ShippingService {
 
-        public void calculateShipping(ShoppingCart sc) {
+        public void CalculateShipping(ShoppingCart sc) {
             if ( sc != null ) {
                 if ( sc.CartItemTotal >= 0 && sc.CartItemTotal < 25) {
                     sc.ShippingTotal = 2.99;
