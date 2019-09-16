@@ -22,7 +22,7 @@ namespace ReviewService.Controllers
         [HttpGet("{itemId}")]
         public IActionResult Index(string itemId)
         {
-            IList<Review> result = reviewService.getReviews(itemId);
+            IList<Review> result = reviewService.GetReviews(itemId);
             return Ok(result);
         }
 
