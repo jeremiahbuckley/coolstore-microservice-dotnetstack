@@ -18,13 +18,13 @@ namespace CatalogService.Controllers
             this.catalogService = catalogService;
         }
 
-        [HttpGet("/")]
+        [HttpGet]
         public IActionResult ListAll()
         {
             return Ok(catalogService.GetProducts());
         }
 
-        [HttpPost("/")]
+        [HttpPost]
         public IActionResult Add([FromBody] Product product)
         {
             catalogService.Add(product);
@@ -36,10 +36,10 @@ namespace CatalogService.Controllers
             return View();
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+        // [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        // public IActionResult Error()
+        // {
+        //     return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        // }
     }
 }

@@ -39,7 +39,7 @@ namespace CatalogService
                 // log.info("Could not get environment variable DB_NAME using the default value of 'CatalogDB'");
                 dbName = "CatalogDB";
             }
-            var mc = new MongoClient("mongodb://host:27017,host2:27017/?replicaSet=rs0");
+            var mc = new MongoClient("mongodb://localhost:27017");
 
             IMongoDatabase db = mc.GetDatabase(dbName);
 
