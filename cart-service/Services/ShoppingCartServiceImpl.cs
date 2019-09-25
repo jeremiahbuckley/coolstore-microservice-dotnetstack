@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Configuration.EnvironmentVariables;
+using Microsoft.Extensions.Logging;
 
 using CartService.Models;
 using PsmProduct = PricingServiceModel.Product; 
@@ -24,7 +26,7 @@ namespace CartService.Services {
 
     public class ShoppingCartServiceImpl: IShoppingCartService {
 
-        // private static final Logger LOG = LoggerFactory.getLogger(ShoppingCartServiceImpl.class);
+        ILogger<ShoppingCartServiceImpl> log;
 
         // @Autowired
         protected ShippingService ss;
@@ -39,11 +41,14 @@ namespace CartService.Services {
 
         protected IDictionary<string, Product> productMap = new Dictionary<string, Product>();
 
+        public ShoppingCartServiceImpl(ILogger<ShoppingCartServiceImpl> logger) {
+            log = logger;
+        }
         public void init() {
-            string host = "error"; // System.getenv("DATAGRID_HOST");
-            string port = "error"; // System.getenv("DATAGRID_PORT");
+            string host = Environment.GetEnvironmentVariable("DATAGRID_HOST");
+            string port = Environment.GetEnvironmentVariable("DATAGRID_PORT");
 
-            if (host != null) {
+            if (!string.IsNullOrWhiteSpace(host) && !string.IsNullOrWhiteSpace(port)) {
                 try {
                     // ConfigurationBuilder builder = new ConfigurationBuilder();
                     // builder.addServer()
@@ -52,14 +57,14 @@ namespace CartService.Services {
                     BasicCacheContainer manager = new RemoteCacheManager(); //builder.build());
                     carts = manager.GetCache("cart");
 
-                    // LOG.info("Using remote JBoss Data Grid (Hot Rod) on {}:{} for cart data", host, port);
+                    log.LogInformation("Using remote JBoss Data Grid (Hot Rod) on {0}:{1} for cart data", host, port);
                 } catch (Exception ex) {
-                    // LOG.error("Failed to connect to remote JBoss Data Grid (Hot Rod) on {}:{}", host, port);
+                    log.LogError("Failed to connect to remote JBoss Data Grid (Hot Rod) on {0}:{1}", host, port);
                 }
             }
 
             if (carts == null) {
-                // LOG.info("Using local cache for cart data");
+                log.LogInformation("Using local cache for cart data");
                 carts = new Dictionary<string, ShoppingCart>();
             }
         }
@@ -167,7 +172,7 @@ namespace CartService.Services {
             Product product = GetProduct(itemId);
 
             if (product == null) {
-                // LOG.warn("Invalid product {} request to get added to the shopping cart. No product added", itemId);
+                log.LogWarning("Invalid product {0} request to get added to the shopping cart. No product added", itemId);
                 return cart;
             }
 

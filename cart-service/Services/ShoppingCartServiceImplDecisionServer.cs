@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Configuration.EnvironmentVariables;
+using Microsoft.Extensions.Logging;
 
 using CartService.Models;
 using PsmPromoEvent = PricingServiceModel.PromoEvent; 
@@ -22,14 +24,14 @@ namespace CartService.Services {
 
     public class ShoppingCartServiceImplDecisionServer: ShoppingCartServiceImpl {
 
-        // private static final Logger LOGGER = LoggerFactory.getLogger(ShoppingCartServiceImplDecisionServer.class);
+        ILogger<ShoppingCartServiceImplDecisionServer> log;
 
-        //private static final String CATALOG_ENDPOINT = System.getenv("CATALOG_ENDPOINT");
-        private static string PRICING_ENDPOINT = "error"; // System.getenv("PRICING_ENDPOINT");
+        private static string CATALOG_ENDPOINT = Environment.GetEnvironmentVariable("CATALOG_ENDPOINT");
+        private static string PRICING_ENDPOINT = Environment.GetEnvironmentVariable("PRICING_ENDPOINT");
         private static string URL = PRICING_ENDPOINT + "/kie-server/services/rest/server";
-        private static string USER = "error"; // System.getenv("KIE_SERVER_USER");
-        private static string PASSWORD = "error"; // System.getenv("KIE_SERVER_PASSWORD");
-        private static string CONTAINER_SPEC = "error"; // System.getenv("KIE_CONTAINER_DEPLOYMENT");
+        private static string USER = Environment.GetEnvironmentVariable("KIE_SERVER_USER");
+        private static string PASSWORD = Environment.GetEnvironmentVariable("KIE_SERVER_PASSWORD");
+        private static string CONTAINER_SPEC = Environment.GetEnvironmentVariable("KIE_CONTAINER_DEPLOYMENT");
         private static string CONTAINER_ID = CONTAINER_SPEC.Substring(0, CONTAINER_SPEC.IndexOf('='));
         private static string KIE_SESSION_NAME = "coolstore-kie-session";
         private static string RULEFLOW_PROCESS_NAME = "com.redhat.coolstore.PriceProcess";
@@ -40,19 +42,23 @@ namespace CartService.Services {
         // private KieServicesClient kieServicesClient;
         // private RuleServicesClient rulesClient;
 
+        public ShoppingCartServiceImplDecisionServer(ILogger<ShoppingCartServiceImplDecisionServer> logger) : base(logger) {
+            log = logger;
+        }
+
         /**
         * Initializes the KIE-Server-Client.
         */
         private void Initialize() {
 
-            // LOGGER.info("Initializing DecisionServer client.");
+            log.LogInformation("Initializing DecisionServer client.");
             // conf = KieServicesFactory.newRestConfiguration(URL, USER, PASSWORD);
             // conf.setMarshallingFormat(FORMAT);
             // kieServicesClient = KieServicesFactory.newKieServicesClient(conf);
             // rulesClient = kieServicesClient.getServicesClient(RuleServicesClient.class);
 
-            string host = "error"; // System.getenv("DATAGRID_HOST");
-            string port = "error"; // System.getenv("DATAGRID_PORT");
+            string host = Environment.GetEnvironmentVariable("DATAGRID_HOST");
+            string port = Environment.GetEnvironmentVariable("DATAGRID_PORT");
         }
 
         public override void PriceShoppingCart(ShoppingCart sc) {
@@ -70,8 +76,8 @@ namespace CartService.Services {
                 //     MapShoppingCartPricingResults(resultSc, sc);
                 // } else {
                     // TODO: Some proper, micro-service type error handling here.
-                    String message = "Error calculating prices.";
-                    // LOGGER.error(message);
+                    string message = "Error calculating prices.";
+                    log.LogError(message);
                     throw new Exception(message);
                 // }
             }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration.EnvironmentVariables;
+using Microsoft.Extensions.Logging;
 using CatalogService.Models;
 using MongoDB.Driver;
 // using MongoDB.Bson;
@@ -12,7 +14,7 @@ namespace CatalogService
     public class MongoCatalogSvc : ICatalogSvc
     {
 
-        // Logger log;
+        ILogger<MongoCatalogSvc> log;
 
         private IMongoCollection<Product> productCollection;
 
@@ -30,18 +32,13 @@ namespace CatalogService
         }
 
         // @PostConstruct
-        public MongoCatalogSvc() {
-            // log.info("@PostConstruct is called...");
+        public MongoCatalogSvc(ILogger<MongoCatalogSvc> logger) {
+            
+            log = logger;
+            log.LogInformation("@PostConstruct is called...");
 
-            // String dbName = System.getenv("DB_NAME");
-            string dbName = "CatalogDB";
-            if(string.IsNullOrWhiteSpace(dbName)) {
-                // log.info("Could not get environment variable DB_NAME using the default value of 'CatalogDB'");
-                dbName = "CatalogDB";
-            }
-            var mc = new MongoClient("mongodb://localhost:27017");
-
-            IMongoDatabase db = mc.GetDatabase(dbName);
+            IMongoDatabase db;
+            var mc = CreateMongoClient(out db);
 
             string collectionName = "products";
             productCollection = db.GetCollection<Product>(collectionName);
@@ -52,9 +49,43 @@ namespace CatalogService
 
         }
 
+        private MongoClient CreateMongoClient(out IMongoDatabase db) {
+            log.LogInformation("Creating MongoClient");
+            string dbName = Environment.GetEnvironmentVariable("DB_NAME");
+            if(string.IsNullOrWhiteSpace(dbName)) {
+                log.LogInformation("Could not get environment variable DB_NAME using the default value of 'CatalogDB'");
+                dbName = "CatalogDB";
+            }
+
+            string dbServer = Environment.GetEnvironmentVariable("DB_SERVER");
+            if(string.IsNullOrWhiteSpace(dbServer)) {
+                log.LogInformation("Could not get environment variable DB_SERVER using the default value of 'localhost'");
+                dbServer = "localhost";
+            }
+
+            string dbUsername = Environment.GetEnvironmentVariable("DB_USERNAME");
+            string dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+            MongoClient client;
+            if(!string.IsNullOrWhiteSpace(dbUsername) && !string.IsNullOrWhiteSpace(dbPassword)) {
+                log.LogInformation(String.Format("Connecting to MongoDB {0}@{1} using {2} user credentials",dbName,dbServer,dbUsername));
+                var credential = MongoCredential.CreateCredential(dbName, dbUsername, dbPassword);
+                var serverAddress = new MongoServerAddress(dbServer);
+                var settings = new MongoClientSettings{ Server = serverAddress, Credential = credential };
+                client = new MongoClient(settings);
+            } else {
+                log.LogInformation(String.Format("Connecting to MongoDB {0}@{1} without authentication",dbName,dbServer));
+                client = new MongoClient(dbServer);
+            }
+
+            db = client.GetDatabase(dbName);
+
+            return client;
+
+        }
+
         // @PreDestroy
         // protected void Destroy() {
-        //     log.info("Closing MongoClient connection");
+        //     log.LogInformation("Closing MongoClient connection");
         //     if(mc!=null) {
         //         mc.close();
         //     }
